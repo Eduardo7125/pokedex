@@ -35,6 +35,9 @@ class Pokemon extends HiveObject {
   @HiveField(8)
   final Map<String, int> stats;
 
+  @HiveField(9)
+  final String cryUrl;
+
   Pokemon({
     required this.id,
     required this.name,
@@ -45,22 +48,26 @@ class Pokemon extends HiveObject {
     required this.weight,
     required this.stats,
     this.isFavorite = false,
+    this.cryUrl = '',
   });
 
   factory Pokemon.fromJson(Map<String, dynamic> json) {
     final sprites = json['sprites'];
     final showdown = sprites['other']?['showdown'];
     final artwork = sprites['other']?['official-artwork'];
+    final cries = json['cries'];
 
     return Pokemon(
       id: json['id'],
       name: json['name'],
-      types: (json['types'] as List)
-          .map((type) => type['type']['name'] as String)
-          .toList(),
+      types:
+          (json['types'] as List)
+              .map((type) => type['type']['name'] as String)
+              .toList(),
       imageUrl:
           artwork?['front_default'] ?? sprites['front_default'] ?? defaultImage,
-      animatedUrl: showdown?['front_default'] ??
+      animatedUrl:
+          showdown?['front_default'] ??
           sprites['front_default'] ??
           defaultImage,
       height: json['height'],
@@ -73,6 +80,7 @@ class Pokemon extends HiveObject {
         'special-defense': json['stats'][4]['base_stat'],
         'speed': json['stats'][5]['base_stat'],
       }),
+      cryUrl: cries?['latest'] ?? '',
     );
   }
 
@@ -87,6 +95,7 @@ class Pokemon extends HiveObject {
       'weight': weight,
       'stats': stats,
       'isFavorite': isFavorite,
+      'cryUrl': cryUrl,
     };
   }
 
@@ -101,6 +110,7 @@ class Pokemon extends HiveObject {
       weight: map['weight'],
       stats: Map<String, int>.from(jsonDecode(map['stats'])),
       isFavorite: map['isFavorite'] == 1,
+      cryUrl: map['cryUrl'] ?? '',
     );
   }
 
