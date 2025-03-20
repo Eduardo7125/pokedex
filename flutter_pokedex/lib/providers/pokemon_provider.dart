@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_pokedex/Models/Pokemon.dart';
+import 'package:flutter_pokedex/core/hive_helper.dart';
 import 'package:flutter_pokedex/core/pokemon_api.dart';
 
 class PokemonProvider extends ChangeNotifier {
@@ -23,6 +24,12 @@ class PokemonProvider extends ChangeNotifier {
       notifyListeners();
 
       final newPokemons = await _api.getPokemons();
+
+      // Update favorite status for all pokemons
+      for (var pokemon in newPokemons) {
+        await HiveHelper.updateFavoriteStatus(pokemon);
+      }
+
       _pokemons = newPokemons;
     } catch (e) {
       _error = 'Error al cargar los Pokémon: $e';
@@ -30,6 +37,11 @@ class PokemonProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> updatePokemonFavorite(Pokemon pokemon) async {
+    await HiveHelper.toggleFavorite(pokemon);
+    notifyListeners();
   }
 
   Pokemon getRandomPokemon() {

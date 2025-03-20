@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/Models/Pokemon.dart';
 import 'package:flutter_pokedex/core/hive_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_pokedex/providers/pokemon_provider.dart';
+import 'package:provider/provider.dart';
 
 class PokemonDetail extends StatefulWidget {
   final Pokemon pokemon;
@@ -13,12 +15,30 @@ class PokemonDetail extends StatefulWidget {
 }
 
 class _PokemonDetailState extends State<PokemonDetail> {
+  @override
+  void initState() {
+    super.initState();
+    _loadFavoriteStatus();
+  }
+
+  Future<void> _loadFavoriteStatus() async {
+    try {
+      final isFav = await HiveHelper.isFavorite(widget.pokemon);
+      if (mounted) {
+        setState(() {
+          widget.pokemon.isFavorite = isFav;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading favorite status: $e');
+    }
+  }
+
   Future<void> _toggleFavorite() async {
     try {
-      await HiveHelper.toggleFavorite(widget.pokemon);
-      setState(() {
-        widget.pokemon.isFavorite = !widget.pokemon.isFavorite;
-      });
+      await context
+          .read<PokemonProvider>()
+          .updatePokemonFavorite(widget.pokemon);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

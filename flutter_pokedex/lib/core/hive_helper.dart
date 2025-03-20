@@ -9,22 +9,27 @@ class HiveHelper {
     await Hive.openBox<Pokemon>(favoritesBox);
   }
 
-  static Future<void> toggleFavorite(Pokemon pokemon) async {
-    try {
-      final box = Hive.box<Pokemon>(favoritesBox);
+  static Future<bool> isFavorite(Pokemon pokemon) async {
+    final box = Hive.box<Pokemon>(favoritesBox);
+    return box.containsKey(pokemon.id);
+  }
 
-      if (box.containsKey(pokemon.id)) {
-        await box.delete(pokemon.id);
-        pokemon.isFavorite = false;
-      } else {
-        await box.put(pokemon.id, pokemon);
-        pokemon.isFavorite = true;
-        await NotificationService.instance
-            .showFavoriteNotification(pokemon.name);
-      }
-    } catch (e) {
-      throw Exception('Error al cambiar favorito: $e');
+  static Future<void> toggleFavorite(Pokemon pokemon) async {
+    final box = Hive.box<Pokemon>(favoritesBox);
+
+    if (box.containsKey(pokemon.id)) {
+      await box.delete(pokemon.id);
+      pokemon.isFavorite = false;
+    } else {
+      pokemon.isFavorite = true;
+      await box.put(pokemon.id, pokemon);
+      await NotificationService.instance.showFavoriteNotification(pokemon.name);
     }
+  }
+
+  static Future<void> updateFavoriteStatus(Pokemon pokemon) async {
+    final box = Hive.box<Pokemon>(favoritesBox);
+    pokemon.isFavorite = box.containsKey(pokemon.id);
   }
 
   static Future<List<Pokemon>> getFavorites() async {
@@ -33,15 +38,6 @@ class HiveHelper {
       return box.values.toList();
     } catch (e) {
       throw Exception('Error al obtener favoritos: $e');
-    }
-  }
-
-  static Future<bool> isFavorite(Pokemon pokemon) async {
-    try {
-      final box = Hive.box<Pokemon>(favoritesBox);
-      return box.containsKey(pokemon.id);
-    } catch (e) {
-      throw Exception('Error al verificar favorito: $e');
     }
   }
 }

@@ -207,13 +207,23 @@ class _PokemonListState extends State<PokemonList> {
                         ),
                         itemCount: filteredPokemons.length,
                         itemBuilder: (context, index) {
-                          return PokemonCard(pokemon: filteredPokemons[index]);
+                          return PokemonCard(
+                            pokemon: filteredPokemons[index],
+                            onFavoriteChanged: () {
+                              setState(() {});
+                            },
+                          );
                         },
                       )
                     : ListView.builder(
                         itemCount: filteredPokemons.length,
                         itemBuilder: (context, index) {
-                          return PokemonCard(pokemon: filteredPokemons[index]);
+                          return PokemonCard(
+                            pokemon: filteredPokemons[index],
+                            onFavoriteChanged: () {
+                              setState(() {});
+                            },
+                          );
                         },
                       );
               },

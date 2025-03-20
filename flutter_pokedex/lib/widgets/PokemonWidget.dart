@@ -7,6 +7,8 @@ import 'package:flutter_pokedex/core/hive_helper.dart';
 import 'package:flutter_pokedex/screens/PokemonDetail.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:flutter_pokedex/providers/pokemon_provider.dart';
 
 class PokemonCard extends StatefulWidget {
   final Pokemon pokemon;
@@ -36,11 +38,15 @@ class _PokemonCardState extends State<PokemonCard> {
   }
 
   Future<void> _loadFavoriteStatus() async {
-    final isFav = await HiveHelper.isFavorite(widget.pokemon);
-    if (mounted) {
-      setState(() {
-        widget.pokemon.isFavorite = isFav;
-      });
+    try {
+      final isFav = await HiveHelper.isFavorite(widget.pokemon);
+      if (mounted) {
+        setState(() {
+          widget.pokemon.isFavorite = isFav;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading favorite status: $e');
     }
   }
 
@@ -80,10 +86,10 @@ class _PokemonCardState extends State<PokemonCard> {
 
   Future<void> _toggleFavorite() async {
     try {
-      await HiveHelper.toggleFavorite(widget.pokemon);
-      setState(() {
-        widget.pokemon.isFavorite = !widget.pokemon.isFavorite;
-      });
+      await context
+          .read<PokemonProvider>()
+          .updatePokemonFavorite(widget.pokemon);
+
       if (widget.onFavoriteChanged != null) {
         widget.onFavoriteChanged!();
       }
@@ -116,7 +122,6 @@ class _PokemonCardState extends State<PokemonCard> {
                 ),
               );
             },
-            onDoubleTap: _handleDoubleTap,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -220,7 +225,7 @@ class _PokemonCardState extends State<PokemonCard> {
               widget.pokemon.isFavorite
                   ? Icons.favorite
                   : Icons.favorite_border,
-              color: widget.pokemon.isFavorite ? Colors.red : null,
+              color: widget.pokemon.isFavorite ? Colors.red : Colors.grey,
             ),
             onPressed: _toggleFavorite,
           ),
