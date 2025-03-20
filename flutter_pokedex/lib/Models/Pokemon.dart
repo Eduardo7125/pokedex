@@ -1,18 +1,39 @@
 import 'dart:convert';
+import 'package:hive/hive.dart';
 
-class Pokemon {
+part 'Pokemon.g.dart';
+
+@HiveType(typeId: 0)
+class Pokemon extends HiveObject {
   static const String defaultImage =
       'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/0.png';
 
+  @HiveField(0)
   final int id;
+
+  @HiveField(1)
   final String name;
-  final List<String> types;
+
+  @HiveField(2)
   final String imageUrl;
+
+  @HiveField(3)
   final String animatedUrl;
-  final int height;
-  final int weight;
-  final Map<String, int> stats;
+
+  @HiveField(4)
+  final List<String> types;
+
+  @HiveField(5)
   bool isFavorite;
+
+  @HiveField(6)
+  final int height;
+
+  @HiveField(7)
+  final int weight;
+
+  @HiveField(8)
+  final Map<String, int> stats;
 
   Pokemon({
     required this.id,
@@ -81,10 +102,6 @@ class Pokemon {
       stats: Map<String, int>.from(jsonDecode(map['stats'])),
       isFavorite: map['isFavorite'] == 1,
     );
-  }
-
-  String get thumbnailUrl {
-    return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png';
   }
 
   String get detailImageUrl {

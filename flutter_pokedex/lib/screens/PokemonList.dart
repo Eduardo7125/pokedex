@@ -223,8 +223,7 @@ class _PokemonListState extends State<PokemonList> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final pokemon =
-              await context.read<PokemonProvider>().getRandomPokemon();
+          final pokemon = context.read<PokemonProvider>().getRandomPokemon();
           if (mounted) {
             Navigator.push(
               context,

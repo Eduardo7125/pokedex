@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter_pokedex/Models/PokemonAdapter.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'screens/PokemonList.dart';
 import 'providers/pokemon_provider.dart';
 import 'core/notification_service.dart';
+import 'core/hive_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize database factory only for desktop/mobile platforms
-  if (!kIsWeb) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
-
+  await Hive.initFlutter();
+  Hive.registerAdapter(PokemonAdapter());
+  await HiveHelper.init();
   await NotificationService.instance.init();
   runApp(const MyApp());
 }

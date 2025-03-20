@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_pokedex/Models/Pokemon.dart';
-import 'package:flutter_pokedex/core/notification_service.dart';
 import 'package:flutter_pokedex/core/pokemon_api.dart';
 
 class PokemonProvider extends ChangeNotifier {

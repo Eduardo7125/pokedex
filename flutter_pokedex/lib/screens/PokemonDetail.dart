@@ -1,28 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/Models/Pokemon.dart';
-import 'package:flutter_pokedex/providers/pokemon_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_pokedex/core/hive_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class PokemonDetail extends StatelessWidget {
+class PokemonDetail extends StatefulWidget {
   final Pokemon pokemon;
 
   const PokemonDetail({super.key, required this.pokemon});
 
   @override
+  State<PokemonDetail> createState() => _PokemonDetailState();
+}
+
+class _PokemonDetailState extends State<PokemonDetail> {
+  Future<void> _toggleFavorite() async {
+    try {
+      await HiveHelper.toggleFavorite(widget.pokemon);
+      setState(() {
+        widget.pokemon.isFavorite = !widget.pokemon.isFavorite;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cambiar favorito: $e')),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(pokemon.name),
+        title: Text(widget.pokemon.name),
         actions: [
           IconButton(
             icon: Icon(
-              pokemon.isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: pokemon.isFavorite ? Colors.red : null,
+              widget.pokemon.isFavorite
+                  ? Icons.favorite
+                  : Icons.favorite_border,
+              color: widget.pokemon.isFavorite ? Colors.red : null,
             ),
-            onPressed: () {
-              // context.read<PokemonProvider>().toggleFavorite(pokemon);
-            },
+            onPressed: _toggleFavorite,
           ),
         ],
       ),
@@ -32,9 +51,9 @@ class PokemonDetail extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               child: Hero(
-                tag: 'pokemon-${pokemon.id}',
+                tag: 'pokemon-${widget.pokemon.id}',
                 child: CachedNetworkImage(
-                  imageUrl: pokemon.detailImageUrl,
+                  imageUrl: widget.pokemon.detailImageUrl,
                   height: 200,
                   width: 200,
                   placeholder: (context, url) => const SizedBox(
@@ -65,7 +84,7 @@ class PokemonDetail extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Row(
-                      children: pokemon.types.map((type) {
+                      children: widget.pokemon.types.map((type) {
                         return Container(
                           margin: const EdgeInsets.only(right: 8),
                           padding: const EdgeInsets.symmetric(
@@ -89,15 +108,15 @@ class PokemonDetail extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
-                    _buildInfoRow('Altura', '${pokemon.height / 10}m'),
-                    _buildInfoRow('Peso', '${pokemon.weight / 10}kg'),
+                    _buildInfoRow('Altura', '${widget.pokemon.height / 10}m'),
+                    _buildInfoRow('Peso', '${widget.pokemon.weight / 10}kg'),
                     const SizedBox(height: 16),
                     Text(
                       'Estadísticas',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
-                    ...pokemon.stats.entries.map((stat) {
+                    ...widget.pokemon.stats.entries.map((stat) {
                       return Column(
                         children: [
                           Row(

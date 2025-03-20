@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/Models/Pokemon.dart';
-import 'package:flutter_pokedex/core/database_helper.dart';
+import 'package:flutter_pokedex/core/hive_helper.dart';
 import 'package:flutter_pokedex/screens/PokemonDetail.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -32,6 +32,16 @@ class _PokemonCardState extends State<PokemonCard> {
   void initState() {
     super.initState();
     _animatedImageFuture = Future.value(null);
+    _loadFavoriteStatus();
+  }
+
+  Future<void> _loadFavoriteStatus() async {
+    final isFav = await HiveHelper.isFavorite(widget.pokemon);
+    if (mounted) {
+      setState(() {
+        widget.pokemon.isFavorite = isFav;
+      });
+    }
   }
 
   void _handleDoubleTap() {
@@ -68,15 +78,21 @@ class _PokemonCardState extends State<PokemonCard> {
     }
   }
 
-  final dbHelper = DatabaseHelper.instance;
-
   Future<void> _toggleFavorite() async {
-    await dbHelper.toggleFavorite(widget.pokemon);
-    setState(() {
-      widget.pokemon.isFavorite = !widget.pokemon.isFavorite;
-    });
-    if (widget.onFavoriteChanged != null) {
-      widget.onFavoriteChanged!();
+    try {
+      await HiveHelper.toggleFavorite(widget.pokemon);
+      setState(() {
+        widget.pokemon.isFavorite = !widget.pokemon.isFavorite;
+      });
+      if (widget.onFavoriteChanged != null) {
+        widget.onFavoriteChanged!();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cambiar favorito: $e')),
+        );
+      }
     }
   }
 
@@ -87,7 +103,6 @@ class _PokemonCardState extends State<PokemonCard> {
     return Stack(
       children: [
         Card(
-          elevation: 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
@@ -122,7 +137,7 @@ class _PokemonCardState extends State<PokemonCard> {
                                 );
                               }
                               return CachedNetworkImage(
-                                imageUrl: widget.pokemon.thumbnailUrl,
+                                imageUrl: widget.pokemon.imageUrl,
                                 height: 140,
                                 width: 140,
                                 placeholder: (context, url) => const SizedBox(
@@ -142,7 +157,7 @@ class _PokemonCardState extends State<PokemonCard> {
                             },
                           )
                         : CachedNetworkImage(
-                            imageUrl: widget.pokemon.thumbnailUrl,
+                            imageUrl: widget.pokemon.imageUrl,
                             height: 140,
                             width: 140,
                             placeholder: (context, url) => const SizedBox(
@@ -205,7 +220,7 @@ class _PokemonCardState extends State<PokemonCard> {
               widget.pokemon.isFavorite
                   ? Icons.favorite
                   : Icons.favorite_border,
-              color: widget.pokemon.isFavorite ? Colors.red : Colors.grey,
+              color: widget.pokemon.isFavorite ? Colors.red : null,
             ),
             onPressed: _toggleFavorite,
           ),

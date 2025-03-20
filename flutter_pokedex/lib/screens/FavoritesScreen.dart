@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pokedex/Models/Pokemon.dart';
-import 'package:flutter_pokedex/core/database_helper.dart';
+import 'package:flutter_pokedex/core/hive_helper.dart';
 import 'package:flutter_pokedex/widgets/PokemonWidget.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,9 +12,9 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
-  final dbHelper = DatabaseHelper.instance;
   List<Pokemon> favorites = [];
   bool isLoading = true;
+  String? error;
 
   @override
   void initState() {
@@ -23,9 +23,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Future<void> _loadFavorites() async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+
     try {
-      final favs = await dbHelper.getFavorites();
+      final favs = await HiveHelper.getFavorites();
       setState(() {
         favorites = favs;
         isLoading = false;
@@ -33,6 +37,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     } catch (e) {
       setState(() {
         isLoading = false;
+        error = e.toString();
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -40,6 +45,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         );
       }
     }
+  }
+
+  Widget _buildPokemonCard(Pokemon pokemon) {
+    return PokemonCard(
+      pokemon: pokemon,
+      onFavoriteChanged: () async {
+        await _loadFavorites();
+      },
+    );
   }
 
   @override
@@ -92,13 +106,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     mainAxisSpacing: 10,
                   ),
                   itemCount: favorites.length,
-                  itemBuilder: (context, index) {
-                    final pokemon = favorites[index];
-                    return PokemonCard(
-                      pokemon: pokemon,
-                      onFavoriteChanged: () => _loadFavorites(),
-                    );
-                  },
+                  itemBuilder: (context, index) =>
+                      _buildPokemonCard(favorites[index]),
                 ),
     );
   }
