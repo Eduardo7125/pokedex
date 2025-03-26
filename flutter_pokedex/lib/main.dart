@@ -6,14 +6,30 @@ import 'screens/PokemonList.dart';
 import 'providers/pokemon_provider.dart';
 import 'core/notification_service.dart';
 import 'core/hive_helper.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'dart:io';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize notifications
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  // Request permissions for Android 13+
+  if (Platform.isAndroid) {
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.requestNotificationsPermission();
+  }
 
   await Hive.initFlutter();
   Hive.registerAdapter(PokemonAdapter());
   await HiveHelper.init();
   await NotificationService.instance.init();
+
   runApp(const MyApp());
 }
 
@@ -47,9 +63,7 @@ class _MyAppState extends State<MyApp> {
             primary: Colors.red.shade700,
             secondary: Colors.red.shade500,
           ),
-          cardTheme: CardTheme(
-            color: Colors.grey.shade50,
-          ),
+          cardTheme: CardTheme(color: Colors.grey.shade50),
         ),
         darkTheme: ThemeData(
           useMaterial3: true,
@@ -58,14 +72,10 @@ class _MyAppState extends State<MyApp> {
             secondary: Colors.red.shade300,
             surface: Colors.grey.shade900,
           ),
-          cardTheme: CardTheme(
-            color: Colors.grey.shade900,
-          ),
+          cardTheme: CardTheme(color: Colors.grey.shade900),
         ),
         themeMode: _themeMode,
-        home: PokemonList(
-          onThemeToggle: toggleTheme,
-        ),
+        home: PokemonList(onThemeToggle: toggleTheme),
       ),
     );
   }

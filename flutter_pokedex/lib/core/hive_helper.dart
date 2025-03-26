@@ -23,7 +23,6 @@ class HiveHelper {
     } else {
       pokemon.isFavorite = true;
       await box.put(pokemon.id, pokemon);
-      await NotificationService.instance.showFavoriteNotification(pokemon.name);
     }
   }
 

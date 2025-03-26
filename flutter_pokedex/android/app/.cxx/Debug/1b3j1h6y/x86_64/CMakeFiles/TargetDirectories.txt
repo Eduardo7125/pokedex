@@ -1,0 +1,2 @@
+C:/Users/eduar/OneDrive/Documentos/GitHub/pokedex/flutter_pokedex/android/app/.cxx/Debug/1b3j1h6y/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/eduar/OneDrive/Documentos/GitHub/pokedex/flutter_pokedex/android/app/.cxx/Debug/1b3j1h6y/x86_64/CMakeFiles/rebuild_cache.dir

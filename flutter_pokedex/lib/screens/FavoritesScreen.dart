@@ -40,9 +40,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         error = e.toString();
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading favorites: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error loading favorites: $e')));
       }
     }
   }
@@ -53,6 +53,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       onFavoriteChanged: () async {
         await _loadFavorites();
       },
+      isListView: false, // Add this parameter
     );
   }
 
@@ -70,45 +71,50 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           ),
         ),
         backgroundColor: isDark ? Colors.grey[900] : Colors.white,
-        iconTheme: IconThemeData(
-          color: isDark ? Colors.white : Colors.black87,
-        ),
+        iconTheme: IconThemeData(color: isDark ? Colors.white : Colors.black87),
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : favorites.isEmpty
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : favorites.isEmpty
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.favorite_border,
-                        size: 64,
-                        color: isDark ? Colors.white70 : Colors.black54,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.favorite_border,
+                      size: 64,
+                      color: isDark ? Colors.white70 : Colors.black54,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No tienes favoritos',
+                      style: GoogleFonts.pressStart2p(
+                        color: isDark ? Colors.white : Colors.black87,
+                        fontSize: 14,
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No tienes favoritos',
-                        style: GoogleFonts.pressStart2p(
-                          color: isDark ? Colors.white : Colors.black87,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : GridView.builder(
-                  padding: const EdgeInsets.all(8),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 1,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                  ),
-                  itemCount: favorites.length,
-                  itemBuilder: (context, index) =>
-                      _buildPokemonCard(favorites[index]),
+                    ),
+                  ],
                 ),
+              )
+              : GridView.builder(
+                padding: const EdgeInsets.all(8),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.85,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: favorites.length,
+                itemBuilder:
+                    (context, index) => PokemonCard(
+                      key: ValueKey('favorite-${favorites[index].id}'),
+                      pokemon: favorites[index],
+                      onFavoriteChanged: _loadFavorites,
+                      useHero: true,
+                      isListView: false, // Add this parameter
+                    ),
+              ),
     );
   }
 }

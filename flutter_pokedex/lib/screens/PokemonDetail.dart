@@ -55,13 +55,17 @@ class _PokemonDetailState extends State<PokemonDetail> {
 
   Future<void> _toggleFavorite() async {
     try {
+      // No necesitamos setState aquí porque el provider notificará el cambio
       await context.read<PokemonProvider>().updatePokemonFavorite(
         widget.pokemon,
       );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al cambiar favorito: $e')),
+          SnackBar(
+            content: Text('Error al cambiar favorito: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -112,9 +116,8 @@ class _PokemonDetailState extends State<PokemonDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final mainType = widget.pokemon.types.first;
-    final typeColor = _getTypeColor(mainType);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final mainType = widget.pokemon.types.first;
 
     return Scaffold(
       appBar: AppBar(
@@ -122,176 +125,229 @@ class _PokemonDetailState extends State<PokemonDetail> {
           widget.pokemon.name,
           style: GoogleFonts.pressStart2p(fontSize: 16),
         ),
-        backgroundColor: typeColor.withOpacity(0.8),
+        backgroundColor: _getTypeColor(mainType),
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: Icon(
-              widget.pokemon.isFavorite
-                  ? Icons.favorite
-                  : Icons.favorite_border,
-              color: widget.pokemon.isFavorite ? Colors.red : Colors.white,
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(scale: animation, child: child);
+              },
+              child: Icon(
+                widget.pokemon.isFavorite
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                key: ValueKey<bool>(widget.pokemon.isFavorite),
+                color: widget.pokemon.isFavorite ? Colors.red : Colors.white,
+              ),
             ),
             onPressed: _toggleFavorite,
           ),
         ],
       ),
-      backgroundColor: typeColor.withOpacity(0.1),
-      body: SingleChildScrollView(
+      backgroundColor:
+          widget.pokemon.types.length > 1
+              ? _getTypeColor(widget.pokemon.types[0])
+              : _getTypeColor(mainType),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors:
+                widget.pokemon.types.length > 1
+                    ? [
+                      _getTypeColor(widget.pokemon.types[0]),
+                      _getTypeColor(widget.pokemon.types[1]),
+                    ]
+                    : [
+                      _getTypeColor(widget.pokemon.types[0]),
+                      _getTypeColor(widget.pokemon.types[0]).withOpacity(0.7),
+                    ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors:
-                      widget.pokemon.types.length > 1
-                          ? [
-                            _getTypeColor(widget.pokemon.types[0]),
-                            _getTypeColor(widget.pokemon.types[1]),
-                          ]
-                          : [
-                            _getTypeColor(widget.pokemon.types[0]),
-                            _getTypeColor(
-                              widget.pokemon.types[0],
-                            ).withOpacity(0.7),
-                          ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Hero(
-                        tag: 'pokemon-${widget.pokemon.id}',
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withOpacity(0.3),
-                            ),
-                            padding: const EdgeInsets.all(16),
-                            child: CachedNetworkImage(
-                              imageUrl:
-                                  _isShowingGif
-                                      ? widget.pokemon.detailImageUrl
-                                      : widget.pokemon.imageUrl,
-                              height: 200,
-                              width: 200,
-                              placeholder:
-                                  (context, url) => const SizedBox(
-                                    height: 200,
-                                    width: 200,
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Imagen y contenido superior
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Hero(
+                                tag: 'pokemon-${widget.pokemon.id}',
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white.withOpacity(0.3),
+                                    ),
+                                    padding: const EdgeInsets.all(16),
+                                    child: CachedNetworkImage(
+                                      imageUrl:
+                                          _isShowingGif
+                                              ? widget.pokemon.detailImageUrl
+                                              : widget.pokemon.imageUrl,
+                                      height: 200,
+                                      width: 200,
+                                      placeholder:
+                                          (context, url) => const SizedBox(
+                                            height: 200,
+                                            width: 200,
+                                            child: Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            ),
+                                          ),
+                                      errorWidget:
+                                          (context, url, error) =>
+                                              Image.network(
+                                                Pokemon.defaultImage,
+                                                height: 200,
+                                                width: 200,
+                                              ),
                                     ),
                                   ),
-                              errorWidget:
-                                  (context, url, error) => Image.network(
-                                    Pokemon.defaultImage,
-                                    height: 200,
-                                    width: 200,
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                child: FloatingActionButton.small(
+                                  onPressed: _handleCryButton,
+                                  backgroundColor: Colors.white.withOpacity(
+                                    0.3,
                                   ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        child: FloatingActionButton.small(
-                          onPressed: _handleCryButton,
-                          backgroundColor: Colors.white.withOpacity(0.3),
-                          child: Icon(
-                            _isPlayingCry ? Icons.volume_up : Icons.volume_off,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '#${widget.pokemon.id.toString().padLeft(3, '0')}',
-                    style: GoogleFonts.pressStart2p(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Card(
-              margin: const EdgeInsets.all(16),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Tipos',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children:
-                          widget.pokemon.types.map((type) {
-                            return Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
+                                  child: Icon(
+                                    _isPlayingCry
+                                        ? Icons.volume_up
+                                        : Icons.volume_off,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
-                              decoration: BoxDecoration(
-                                color: _getTypeColor(type),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                type,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            );
-                          }).toList(),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Características',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    _buildInfoRow('Altura', '${widget.pokemon.height / 10}m'),
-                    _buildInfoRow('Peso', '${widget.pokemon.weight / 10}kg'),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Estadísticas',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    ...widget.pokemon.stats.entries.map((stat) {
-                      return Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(stat.key.toUpperCase()),
-                              Text(stat.value.toString()),
                             ],
                           ),
-                          const SizedBox(height: 4),
-                          LinearProgressIndicator(
-                            value: stat.value / 255,
-                            backgroundColor: Colors.grey[200],
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              _getStatColor(stat.key),
+                          const SizedBox(height: 8),
+                          Text(
+                            '#${widget.pokemon.id.toString().padLeft(3, '0')}',
+                            style: GoogleFonts.pressStart2p(
+                              fontSize: 16,
+                              color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 8),
                         ],
-                      );
-                    }).toList(),
+                      ),
+                    ),
+                    // Sección de estadísticas con fondo blanco/oscuro
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(30),
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          Card(
+                            margin: const EdgeInsets.all(16),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Tipos',
+                                    style:
+                                        Theme.of(context).textTheme.titleLarge,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children:
+                                        widget.pokemon.types.map((type) {
+                                          return Container(
+                                            margin: const EdgeInsets.only(
+                                              right: 8,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: _getTypeColor(type),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              type,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          );
+                                        }).toList(),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Características',
+                                    style:
+                                        Theme.of(context).textTheme.titleLarge,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildInfoRow(
+                                    'Altura',
+                                    '${widget.pokemon.height / 10}m',
+                                  ),
+                                  _buildInfoRow(
+                                    'Peso',
+                                    '${widget.pokemon.weight / 10}kg',
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'Estadísticas',
+                                    style:
+                                        Theme.of(context).textTheme.titleLarge,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ...widget.pokemon.stats.entries.map((stat) {
+                                    return Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(stat.key.toUpperCase()),
+                                            Text(stat.value.toString()),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        LinearProgressIndicator(
+                                          value: stat.value / 255,
+                                          backgroundColor: Colors.grey[200],
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                _getStatColor(stat.key),
+                                              ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                      ],
+                                    );
+                                  }).toList(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

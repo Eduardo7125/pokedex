@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_pokedex/Models/Pokemon.dart';
 import 'package:flutter_pokedex/providers/pokemon_provider.dart';
 import 'package:flutter_pokedex/screens/FavoritesScreen.dart';
+import 'package:flutter_pokedex/screens/PokemonCompareScreen.dart';
+import 'package:flutter_pokedex/widgets/PokemonErrorWidget.dart';
 import 'package:flutter_pokedex/widgets/PokemonLoadingIndicator.dart';
 import 'package:flutter_pokedex/widgets/PokemonWidget.dart';
 import 'package:provider/provider.dart';
 import 'PokemonDetail.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class PokemonList extends StatefulWidget {
   final VoidCallback onThemeToggle;
@@ -205,6 +207,17 @@ class _PokemonListState extends State<PokemonList> {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.compare_arrows),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PokemonCompareScreen(),
+                ),
+              );
+            },
+          ),
         ],
       ),
       body: Column(
@@ -331,31 +344,24 @@ class _PokemonListState extends State<PokemonList> {
           Expanded(
             child: Consumer<PokemonProvider>(
               builder: (context, provider, child) {
-                if (provider.isLoading) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        PokemonLoadingIndicator(),
-                        SizedBox(height: 16),
-                        Text('Cargando Pokémon...'),
-                      ],
-                    ),
+                if (provider.error.isNotEmpty) {
+                  return PokemonErrorWidget(
+                    message: provider.error,
+                    onRetry: () => provider.loadPokemons(refresh: true),
                   );
                 }
 
-                if (provider.error.isNotEmpty) {
+                if (provider.isLoading) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(provider.error),
+                        const PokemonLoadingIndicator(),
                         const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            provider.loadPokemons(refresh: true);
-                          },
-                          child: const Text('Reintentar'),
+                        Text(
+                          'Cargando Pokédex... ${provider.loadingProgress}%',
+                          style: GoogleFonts.pressStart2p(fontSize: 14),
+                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
@@ -369,30 +375,42 @@ class _PokemonListState extends State<PokemonList> {
                 return isGridView
                     ? GridView.builder(
                       controller: _scrollController,
+                      padding: const EdgeInsets.all(8),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            childAspectRatio: 1,
+                            childAspectRatio:
+                                0.75, // Ajustado para mejor proporción
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
                           ),
                       itemCount: provider.displayedPokemons.length,
+                      cacheExtent: 1000, // Increase cache extent
+                      addAutomaticKeepAlives: true,
                       itemBuilder: (context, index) {
+                        final pokemon = provider.displayedPokemons[index];
                         return PokemonCard(
-                          pokemon: provider.displayedPokemons[index],
-                          onFavoriteChanged: () {
-                            setState(() {});
-                          },
+                          key: ValueKey('pokemon-${pokemon.id}'),
+                          pokemon: pokemon,
+                          onFavoriteChanged: () => setState(() {}),
+                          useHero: true,
+                          isListView: !isGridView,
                         );
                       },
                     )
                     : ListView.builder(
                       controller: _scrollController,
                       itemCount: provider.displayedPokemons.length,
+                      cacheExtent: 1000,
+                      addAutomaticKeepAlives: true,
                       itemBuilder: (context, index) {
+                        final pokemon = provider.displayedPokemons[index];
                         return PokemonCard(
-                          pokemon: provider.displayedPokemons[index],
-                          onFavoriteChanged: () {
-                            setState(() {});
-                          },
+                          key: ValueKey('pokemon-${pokemon.id}'),
+                          pokemon: pokemon,
+                          onFavoriteChanged: () => setState(() {}),
+                          useHero: true,
+                          isListView: !isGridView,
                         );
                       },
                     );

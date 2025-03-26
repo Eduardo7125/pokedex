@@ -24,7 +24,7 @@ Future<Pokemon> _fetchPokemonDetails(Map<String, dynamic> args) async {
 
 class PokemonApi {
   static const String baseUrl = 'https://pokeapi.co/api/v2';
-  static const int limit = 1500; // First generation only
+  static const int limit = 1500;
 
   Future<List<Pokemon>> getPokemons() async {
     try {
