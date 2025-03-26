@@ -57,8 +57,8 @@ class _PokemonDetailState extends State<PokemonDetail> {
     try {
       // No necesitamos setState aquí porque el provider notificará el cambio
       await context.read<PokemonProvider>().updatePokemonFavorite(
-        widget.pokemon,
-      );
+            widget.pokemon,
+          );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,23 +146,21 @@ class _PokemonDetailState extends State<PokemonDetail> {
           ),
         ],
       ),
-      backgroundColor:
-          widget.pokemon.types.length > 1
-              ? _getTypeColor(widget.pokemon.types[0])
-              : _getTypeColor(mainType),
+      backgroundColor: widget.pokemon.types.length > 1
+          ? _getTypeColor(widget.pokemon.types[0])
+          : _getTypeColor(mainType),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors:
-                widget.pokemon.types.length > 1
-                    ? [
-                      _getTypeColor(widget.pokemon.types[0]),
-                      _getTypeColor(widget.pokemon.types[1]),
-                    ]
-                    : [
-                      _getTypeColor(widget.pokemon.types[0]),
-                      _getTypeColor(widget.pokemon.types[0]).withOpacity(0.7),
-                    ],
+            colors: widget.pokemon.types.length > 1
+                ? [
+                    _getTypeColor(widget.pokemon.types[0]),
+                    _getTypeColor(widget.pokemon.types[1]),
+                  ]
+                : [
+                    _getTypeColor(widget.pokemon.types[0]),
+                    _getTypeColor(widget.pokemon.types[0]).withOpacity(0.7),
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -192,28 +190,25 @@ class _PokemonDetailState extends State<PokemonDetail> {
                                     ),
                                     padding: const EdgeInsets.all(16),
                                     child: CachedNetworkImage(
-                                      imageUrl:
-                                          _isShowingGif
-                                              ? widget.pokemon.detailImageUrl
-                                              : widget.pokemon.imageUrl,
+                                      imageUrl: _isShowingGif
+                                          ? widget.pokemon.detailImageUrl
+                                          : widget.pokemon.imageUrl,
                                       height: 200,
                                       width: 200,
-                                      placeholder:
-                                          (context, url) => const SizedBox(
-                                            height: 200,
-                                            width: 200,
-                                            child: Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            ),
-                                          ),
-                                      errorWidget:
-                                          (context, url, error) =>
-                                              Image.network(
-                                                Pokemon.defaultImage,
-                                                height: 200,
-                                                width: 200,
-                                              ),
+                                      placeholder: (context, url) =>
+                                          const SizedBox(
+                                        height: 200,
+                                        width: 200,
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Image.network(
+                                        Pokemon.defaultImage,
+                                        height: 200,
+                                        width: 200,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -271,29 +266,28 @@ class _PokemonDetailState extends State<PokemonDetail> {
                                   ),
                                   const SizedBox(height: 8),
                                   Row(
-                                    children:
-                                        widget.pokemon.types.map((type) {
-                                          return Container(
-                                            margin: const EdgeInsets.only(
-                                              right: 8,
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: _getTypeColor(type),
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            child: Text(
-                                              type,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
+                                    children: widget.pokemon.types.map((type) {
+                                      return Container(
+                                        margin: const EdgeInsets.only(
+                                          right: 8,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: _getTypeColor(type),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          type,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
@@ -334,8 +328,8 @@ class _PokemonDetailState extends State<PokemonDetail> {
                                           backgroundColor: Colors.grey[200],
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                                _getStatColor(stat.key),
-                                              ),
+                                            _getStatColor(stat.key),
+                                          ),
                                         ),
                                         const SizedBox(height: 8),
                                       ],

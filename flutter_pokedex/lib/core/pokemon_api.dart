@@ -4,13 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_pokedex/Models/Pokemon.dart';
 import 'package:http/http.dart' as http;
 
-// Data structure for passing arguments to isolate
-class FetchArguments {
-  final String url;
-  final int limit;
-  FetchArguments(this.url, this.limit);
-}
-
 Future<Pokemon> _fetchPokemonDetails(Map<String, dynamic> args) async {
   final String url = args['url'];
   final response = await http.get(Uri.parse(url));
@@ -24,50 +17,64 @@ Future<Pokemon> _fetchPokemonDetails(Map<String, dynamic> args) async {
 
 class PokemonApi {
   static const String baseUrl = 'https://pokeapi.co/api/v2';
-  static const int limit = 1500;
 
-  Future<List<Pokemon>> getPokemons() async {
-    try {
-      final listResponse = await http.get(
-        Uri.parse('$baseUrl/pokemon?limit=$limit'),
-      );
+  Future<Pokemon> fetchPokemonDetails(String pokemon) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/pokemon/${pokemon.toLowerCase()}'),
+    );
 
-      if (listResponse.statusCode != 200) {
-        throw Exception('Failed to load pokemon list');
-      }
-
-      final listData = json.decode(listResponse.body);
-      final List<dynamic> results = listData['results'];
-
-      final responses = await Future.wait(
-        results.map((pokemon) => http.get(Uri.parse(pokemon['url']))),
-      );
-
-      return responses
-          .where((response) => response.statusCode == 200)
-          .map((response) => Pokemon.fromJson(json.decode(response.body)))
-          .toList();
-    } catch (e) {
-      throw Exception('Error fetching pokemon data: $e');
+    if (response.statusCode == 200) {
+      final pokemonDetail = await compute(jsonDecode, response.body);
+      return Pokemon.fromJson(pokemonDetail);
+    } else {
+      throw Exception('Pokémon not found');
     }
   }
 
-  Future<Pokemon> getPokemonDetails(String name) async {
-    try {
-      final url = '$baseUrl/pokemon/$name';
-      return await compute(_fetchPokemonDetails, {'url': url});
-    } catch (e) {
-      throw Exception('Error: $e');
+  Future<List<Map<String, dynamic>>> fetchAllPokemonBasic() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/pokemon?limit=1302'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List results = data['results'];
+
+      List<Future<Map<String, dynamic>>> requests =
+          results.map<Future<Map<String, dynamic>>>((result) async {
+        final detailResponse = await http.get(Uri.parse(result['url']));
+
+        if (detailResponse.statusCode == 200) {
+          final detailData = json.decode(detailResponse.body);
+          return {
+            'name': result['name'],
+            'id': detailData['id'],
+            'url': result['url'],
+            'types': detailData['types']
+                .map((typeInfo) => typeInfo['type']['name'])
+                .toList(),
+            'image': detailData['sprites']['other']?['official-artwork']
+                    ?['front_default'] ??
+                detailData['sprites']['front_default'],
+          };
+        } else {
+          throw Exception(
+            'Failed to load Pokémon details for ${result['name']}',
+          );
+        }
+      }).toList();
+
+      return await Future.wait(requests);
+    } else {
+      throw Exception('Failed to load Pokémon list');
     }
   }
 
   Future<Pokemon> getRandomPokemon() async {
     try {
       final random = Random();
-      final randomId = random.nextInt(limit) + 1;
-      final url = '$baseUrl/pokemon/$randomId';
-
-      return await compute(_fetchPokemonDetails, {'url': url});
+      final randomId = random.nextInt(1008) + 1;
+      return await fetchPokemonDetails(randomId.toString());
     } catch (e) {
       throw Exception('Error: $e');
     }

@@ -83,51 +83,47 @@ class _PokemonCompareScreenState extends State<PokemonCompareScreen> {
     return Container(
       color: Colors.transparent,
       child: Center(
-        child:
-            pokemon != null
-                ? Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors:
-                          pokemon.types.length > 1
-                              ? [
-                                _getTypeColor(pokemon.types[0]),
-                                _getTypeColor(pokemon.types[1]),
-                              ]
-                              : [
-                                _getTypeColor(pokemon.types[0]),
-                                _getTypeColor(
-                                  pokemon.types[0],
-                                ).withOpacity(0.7),
-                              ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+        child: pokemon != null
+            ? Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: pokemon.types.length > 1
+                        ? [
+                            _getTypeColor(pokemon.types[0]),
+                            _getTypeColor(pokemon.types[1]),
+                          ]
+                        : [
+                            _getTypeColor(pokemon.types[0]),
+                            _getTypeColor(
+                              pokemon.types[0],
+                            ).withOpacity(0.7),
+                          ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  child: Hero(
-                    tag:
-                        'compare-pokemon-${pokemon.id}-${isTop ? "top" : "bottom"}',
-                    child: CachedNetworkImage(
-                      imageUrl: pokemon.imageUrl,
+                ),
+                child: Hero(
+                  tag:
+                      'compare-pokemon-${pokemon.id}-${isTop ? "top" : "bottom"}',
+                  child: CachedNetworkImage(
+                    imageUrl: pokemon.imageUrl,
+                    height: 150,
+                    width: 150,
+                    placeholder: (context, url) => const SizedBox(
                       height: 150,
                       width: 150,
-                      placeholder:
-                          (context, url) => const SizedBox(
-                            height: 150,
-                            width: 150,
-                            child: Center(child: PokemonLoadingIndicator()),
-                          ),
-                      errorWidget:
-                          (context, url, error) => Image.network(
-                            Pokemon.defaultImage,
-                            height: 150,
-                            width: 150,
-                          ),
+                      child: Center(child: PokemonLoadingIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Image.network(
+                      Pokemon.defaultImage,
+                      height: 150,
+                      width: 150,
                     ),
                   ),
-                )
-                : const Icon(Icons.add_circle_outline, size: 48),
+                ),
+              )
+            : const Icon(Icons.add_circle_outline, size: 48),
       ),
     );
   }
@@ -199,32 +195,31 @@ class _PokemonCompareScreenState extends State<PokemonCompareScreen> {
           ),
         ],
       ),
-      floatingActionButton:
-          canCompare
-              ? FloatingActionButton(
-                onPressed: () {
-                  setState(() {
-                    isComparing = !isComparing;
-                  });
-                },
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [Colors.red.shade700, Colors.white],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
-                  child: Icon(
-                    isComparing ? Icons.close : Icons.compare_arrows,
-                    color: Colors.white,
+      floatingActionButton: canCompare
+          ? FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  isComparing = !isComparing;
+                });
+              },
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [Colors.red.shade700, Colors.white],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
                 ),
-              )
-              : null,
+                child: Icon(
+                  isComparing ? Icons.close : Icons.compare_arrows,
+                  color: Colors.white,
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

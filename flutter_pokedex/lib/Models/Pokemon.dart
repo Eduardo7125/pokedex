@@ -60,14 +60,12 @@ class Pokemon extends HiveObject {
     return Pokemon(
       id: json['id'],
       name: json['name'],
-      types:
-          (json['types'] as List)
-              .map((type) => type['type']['name'] as String)
-              .toList(),
+      types: (json['types'] as List)
+          .map((type) => type['type']['name'] as String)
+          .toList(),
       imageUrl:
           artwork?['front_default'] ?? sprites['front_default'] ?? defaultImage,
-      animatedUrl:
-          showdown?['front_default'] ??
+      animatedUrl: showdown?['front_default'] ??
           sprites['front_default'] ??
           defaultImage,
       height: json['height'],

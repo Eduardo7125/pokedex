@@ -106,9 +106,9 @@ class _PokemonListState extends State<PokemonList> {
 
   void _applyFilters() {
     context.read<PokemonProvider>().applyFilters(
-      searchQuery: searchQuery,
-      sortBy: sortBy,
-    );
+          searchQuery: searchQuery,
+          sortBy: sortBy,
+        );
   }
 
   void _showTypeSelectionDialog() {
@@ -122,45 +122,44 @@ class _PokemonListState extends State<PokemonList> {
             child: Wrap(
               spacing: 8,
               runSpacing: 8,
-              children:
-                  [
-                    'fire',
-                    'water',
-                    'grass',
-                    'electric',
-                    'psychic',
-                    'fighting',
-                    'rock',
-                    'ground',
-                    'flying',
-                    'bug',
-                    'poison',
-                    'ghost',
-                    'dragon',
-                    'dark',
-                    'steel',
-                    'fairy',
-                  ].map((type) {
-                    final isSelected = context
-                        .watch<PokemonProvider>()
-                        .selectedTypes
-                        .contains(type);
-                    return FilterChip(
-                      selected: isSelected,
-                      showCheckmark: false,
-                      label: Text(
-                        type,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                      backgroundColor: _getTypeColor(type).withOpacity(0.2),
-                      selectedColor: _getTypeColor(type),
-                      onSelected: (selected) {
-                        context.read<PokemonProvider>().toggleType(type);
-                      },
-                    );
-                  }).toList(),
+              children: [
+                'fire',
+                'water',
+                'grass',
+                'electric',
+                'psychic',
+                'fighting',
+                'rock',
+                'ground',
+                'flying',
+                'bug',
+                'poison',
+                'ghost',
+                'dragon',
+                'dark',
+                'steel',
+                'fairy',
+              ].map((type) {
+                final isSelected = context
+                    .watch<PokemonProvider>()
+                    .selectedTypes
+                    .contains(type);
+                return FilterChip(
+                  selected: isSelected,
+                  showCheckmark: false,
+                  label: Text(
+                    type,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  backgroundColor: _getTypeColor(type).withOpacity(0.2),
+                  selectedColor: _getTypeColor(type),
+                  onSelected: (selected) {
+                    context.read<PokemonProvider>().toggleType(type);
+                  },
+                );
+              }).toList(),
             ),
           ),
           actions: [
@@ -374,46 +373,46 @@ class _PokemonListState extends State<PokemonList> {
 
                 return isGridView
                     ? GridView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(8),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio:
-                                0.75, // Ajustado para mejor proporción
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                      itemCount: provider.displayedPokemons.length,
-                      cacheExtent: 1000, // Increase cache extent
-                      addAutomaticKeepAlives: true,
-                      itemBuilder: (context, index) {
-                        final pokemon = provider.displayedPokemons[index];
-                        return PokemonCard(
-                          key: ValueKey('pokemon-${pokemon.id}'),
-                          pokemon: pokemon,
-                          onFavoriteChanged: () => setState(() {}),
-                          useHero: true,
-                          isListView: !isGridView,
-                        );
-                      },
-                    )
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(8),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio:
+                              0.75, // Ajustado para mejor proporción
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                        ),
+                        itemCount: provider.displayedPokemons.length,
+                        cacheExtent: 1000, // Increase cache extent
+                        addAutomaticKeepAlives: true,
+                        itemBuilder: (context, index) {
+                          final pokemon = provider.displayedPokemons[index];
+                          return PokemonCard(
+                            key: ValueKey('pokemon-${pokemon.id}'),
+                            pokemon: pokemon,
+                            onFavoriteChanged: () => setState(() {}),
+                            useHero: true,
+                            isListView: !isGridView,
+                          );
+                        },
+                      )
                     : ListView.builder(
-                      controller: _scrollController,
-                      itemCount: provider.displayedPokemons.length,
-                      cacheExtent: 1000,
-                      addAutomaticKeepAlives: true,
-                      itemBuilder: (context, index) {
-                        final pokemon = provider.displayedPokemons[index];
-                        return PokemonCard(
-                          key: ValueKey('pokemon-${pokemon.id}'),
-                          pokemon: pokemon,
-                          onFavoriteChanged: () => setState(() {}),
-                          useHero: true,
-                          isListView: !isGridView,
-                        );
-                      },
-                    );
+                        controller: _scrollController,
+                        itemCount: provider.displayedPokemons.length,
+                        cacheExtent: 1000,
+                        addAutomaticKeepAlives: true,
+                        itemBuilder: (context, index) {
+                          final pokemon = provider.displayedPokemons[index];
+                          return PokemonCard(
+                            key: ValueKey('pokemon-${pokemon.id}'),
+                            pokemon: pokemon,
+                            onFavoriteChanged: () => setState(() {}),
+                            useHero: true,
+                            isListView: !isGridView,
+                          );
+                        },
+                      );
               },
             ),
           ),
@@ -434,11 +433,19 @@ class _PokemonListState extends State<PokemonList> {
             onPressed: () async {
               final pokemon =
                   context.read<PokemonProvider>().getRandomPokemon();
-              if (mounted) {
+              if (pokemon != null && mounted) {
+                // Add null check here
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => PokemonDetail(pokemon: pokemon),
+                  ),
+                );
+              } else if (mounted) {
+                // Show error message if no pokemon was found
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('No se pudo obtener un Pokémon aleatorio'),
                   ),
                 );
               }

@@ -65,16 +65,15 @@ class PokemonSelectCard extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
-            colors:
-                pokemon.types.length > 1
-                    ? [
-                      _getTypeColor(pokemon.types[0]),
-                      _getTypeColor(pokemon.types[1]),
-                    ]
-                    : [
-                      _getTypeColor(pokemon.types[0]),
-                      _getTypeColor(pokemon.types[0]).withOpacity(0.7),
-                    ],
+            colors: pokemon.types.length > 1
+                ? [
+                    _getTypeColor(pokemon.types[0]),
+                    _getTypeColor(pokemon.types[1]),
+                  ]
+                : [
+                    _getTypeColor(pokemon.types[0]),
+                    _getTypeColor(pokemon.types[0]).withOpacity(0.7),
+                  ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -97,18 +96,16 @@ class PokemonSelectCard extends StatelessWidget {
                 imageUrl: pokemon.imageUrl,
                 height: 80,
                 width: 80,
-                placeholder:
-                    (context, url) => const SizedBox(
-                      height: 80,
-                      width: 80,
-                      child: Center(child: PokemonLoadingIndicator()),
-                    ),
-                errorWidget:
-                    (context, url, error) => Image.network(
-                      Pokemon.defaultImage,
-                      height: 80,
-                      width: 80,
-                    ),
+                placeholder: (context, url) => const SizedBox(
+                  height: 80,
+                  width: 80,
+                  child: Center(child: PokemonLoadingIndicator()),
+                ),
+                errorWidget: (context, url, error) => Image.network(
+                  Pokemon.defaultImage,
+                  height: 80,
+                  width: 80,
+                ),
               ),
             ),
             // Pokemon number

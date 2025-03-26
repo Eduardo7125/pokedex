@@ -103,8 +103,8 @@ class _PokemonCardState extends State<PokemonCard>
   Future<void> _toggleFavorite() async {
     try {
       await context.read<PokemonProvider>().updatePokemonFavorite(
-        widget.pokemon,
-      );
+            widget.pokemon,
+          );
 
       if (widget.onFavoriteChanged != null) {
         widget.onFavoriteChanged!();
@@ -145,16 +145,15 @@ class _PokemonCardState extends State<PokemonCard>
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
             gradient: LinearGradient(
-              colors:
-                  widget.pokemon.types.length > 1
-                      ? [
-                        _getTypeColor(widget.pokemon.types[0]),
-                        _getTypeColor(widget.pokemon.types[1]),
-                      ]
-                      : [
-                        _getTypeColor(widget.pokemon.types[0]),
-                        _getTypeColor(widget.pokemon.types[0]).withOpacity(0.7),
-                      ],
+              colors: widget.pokemon.types.length > 1
+                  ? [
+                      _getTypeColor(widget.pokemon.types[0]),
+                      _getTypeColor(widget.pokemon.types[1]),
+                    ]
+                  : [
+                      _getTypeColor(widget.pokemon.types[0]),
+                      _getTypeColor(widget.pokemon.types[0]).withOpacity(0.7),
+                    ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -205,9 +204,8 @@ class _PokemonCardState extends State<PokemonCard>
               child: CachedNetworkImage(
                 imageUrl: widget.pokemon.imageUrl,
                 fit: BoxFit.contain,
-                placeholder:
-                    (context, url) =>
-                        const Center(child: PokemonLoadingIndicator()),
+                placeholder: (context, url) =>
+                    const Center(child: PokemonLoadingIndicator()),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -249,9 +247,8 @@ class _PokemonCardState extends State<PokemonCard>
               child: CachedNetworkImage(
                 imageUrl: widget.pokemon.imageUrl,
                 fit: BoxFit.contain,
-                placeholder:
-                    (context, url) =>
-                        const Center(child: PokemonLoadingIndicator()),
+                placeholder: (context, url) =>
+                    const Center(child: PokemonLoadingIndicator()),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
@@ -301,9 +298,9 @@ class _PokemonCardState extends State<PokemonCard>
   Widget _buildPokemonImage(Color typeColor) {
     return widget.useHero
         ? Hero(
-          tag: 'pokemon-${widget.pokemon.id}',
-          child: _buildPokemonImageContent(typeColor),
-        )
+            tag: 'pokemon-${widget.pokemon.id}',
+            child: _buildPokemonImageContent(typeColor),
+          )
         : _buildPokemonImageContent(typeColor);
   }
 
@@ -315,21 +312,19 @@ class _PokemonCardState extends State<PokemonCard>
       ),
       padding: const EdgeInsets.all(8),
       child: CachedNetworkImage(
-        imageUrl:
-            _isShowingGif
-                ? widget.pokemon.animatedUrl
-                : widget.pokemon.imageUrl,
+        imageUrl: _isShowingGif
+            ? widget.pokemon.animatedUrl
+            : widget.pokemon.imageUrl,
         height: 120,
         width: 120,
         memCacheHeight: 120, // Add cache optimization
         memCacheWidth: 120,
         placeholder: (context, url) => const PokemonLoadingIndicator(),
-        errorWidget:
-            (context, url, error) => Image.asset(
-              'assets/loading_pokemon.gif',
-              height: 120,
-              width: 120,
-            ),
+        errorWidget: (context, url, error) => Image.asset(
+          'assets/loading_pokemon.gif',
+          height: 120,
+          width: 120,
+        ),
       ),
     );
   }
@@ -356,32 +351,31 @@ class _PokemonCardState extends State<PokemonCard>
   Widget _buildTypeChips() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children:
-          widget.pokemon.types.map((type) {
-            final typeColor = _getTypeColor(type);
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: typeColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: typeColor.withOpacity(0.4),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+      children: widget.pokemon.types.map((type) {
+        final typeColor = _getTypeColor(type);
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: typeColor,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: typeColor.withOpacity(0.4),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
-              child: Text(
-                type,
-                style: GoogleFonts.pressStart2p(
-                  fontSize: 8,
-                  color: Colors.white,
-                ),
-              ),
-            );
-          }).toList(),
+            ],
+          ),
+          child: Text(
+            type,
+            style: GoogleFonts.pressStart2p(
+              fontSize: 8,
+              color: Colors.white,
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
